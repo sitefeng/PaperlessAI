@@ -35,32 +35,41 @@ def getBatch(batchNum, dataset, label, batchSize):
 
 # Importing and parsing data
 parser = DataParser()
-fullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=200000)
+rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=200000)
 
+
+# Separating full datasets into processed tensors required by TensorFlow
+uniquePackageCount = len(packageIds)
+
+fullDataset = []
+fullLabels = []
+
+# Generating positive correlation data: ANN is expected to output favorably to
+# these input data because it's what happened. See powerpoint for details.
+for currUserHistory in rawFullDataset:
+
+    for i, cardSentCount in np.ndenumerate(currUserHistory):
+        currUserCard = np.zeros(uniquePackageCount, dtype=np.uint8)
+        restOfUserHistory = np.array(currUserHistory, dtype=np.uint8)
+
+        if cardSentCount != 0:
+            currUserCard[i] = 1
+            restOfUserHistory[i] = cardSentCount - 1
+
+        combinedTrainItem = np.append(currUserCard, currUserHistory)
+        fullDataset.append(combinedTrainItem)
+
+
+
+# Further separate into training and validation datasets
 fullDatasetSize = len(fullDataset)
 validationSize = int(fullDatasetSize * 0.05)
 
-unsepTrainDataset, unsepValidDataset = parser.splitDatasetIntroTrainingAndValidation(fullDataset, validationSize)
+trainDataset, validDataset = parser.splitDatasetIntroTrainingAndValidation(fullDataset, validationSize)
+trainLabels, validLabels = parser.splitDatasetIntroTrainingAndValidation(fullLabels, validationSize)
 
 
-uniquePackageCount = len(packageIds)
-# Separating full datasets into processed tensors required by TensorFlow
-trainDataset = []
-validDataset = []
-for currUserHistory in unsepTrainDataset:
-    procIndex = -1
-    currUserCard = np.empty(uniquePackageCount, dtype=np.uint8)
-    currUserHistory = np.empty(uniquePackageCount, dtype=np.uint8)
-    for i, cardIndex in np.ndenumerate(currUserHistory):
-        if cardIndex != 0:
-            procIndex = cardIndex
-
-    combinedTrainItem = np.append(currUserCard, currUserHistory)
-    trainDataset.append(combinedTrainItem)
-
-
-
-# Main training code
+# Main training code with TensorFlow
 # Constants
 numTrain = len(trainDataset)
 numValidation = len(validDataset)
@@ -74,7 +83,7 @@ numOutput = 1
 batchSize = 50
 learningRate = 0.5
 
-## Start Training
+# Start Training
 inputImgs = tf.placeholder(tf.float32, shape=[batchSize, numInput])
 inputLabels = tf.placeholder(tf.float32, shape=[batchSize, numOutput])
 

@@ -119,7 +119,3 @@ class DataParser:
         f.close()
         print("User Sent History gathered: rows[%d], cols[%d]" % (len(userSentHistory), uniquePackageCount))
         return (userSentHistory, uniquePackageList)
-
-
-dp = DataParser()
-dp.readCSV()

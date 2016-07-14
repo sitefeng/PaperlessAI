@@ -1,11 +1,11 @@
 from DataParser import DataParser
+import numpy as np
 
-dp = DataParser()
-userSentHistory, uniquePackageList = dp.readCSV("accounts_packages.csv")
 
-print("HISTORY")
-print(userSentHistory)
-print("-----------")
-print(uniquePackageList)
+myArray = np.array([2, 3], dtype=np.int)
+
+newArray = np.array(myArray)
+
+print(newArray)
 
 
