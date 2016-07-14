@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 from sets import Set
+from random import randint
 
 
 class DataParser:
@@ -18,7 +19,7 @@ class DataParser:
     # based on the validation data size specified in the parameter
     def splitDatasetIntroTrainingAndValidation(self, dataset, validDataSize):
 
-        trainIndexCutoff = len(trainDataset) - validDataSize
+        trainIndexCutoff = len(dataset) - validDataSize
         trainDataset = dataset[:trainIndexCutoff]
         validDataset = dataset[trainIndexCutoff:]
 
@@ -105,10 +106,10 @@ class DataParser:
             userSentCardCount += 1
 
             i += 1
-            if i % 10000 == 0:
+            if i % 1000 == 0:
                 print(
-                    "Processed: [%dk out of max of %dk](%.0f%%)" % (
-                        i / 1000, maxReadRows / 1000, 100 * i / maxReadRows))
+                    "Processing data... [%.02fk out of max of %.02fk](%.0f%%)" % (
+                        i / 1000.0, maxReadRows / 1000.0, 100 * i / maxReadRows))
             if i > maxReadRows:
                 break
 
@@ -119,3 +120,55 @@ class DataParser:
         f.close()
         print("User Sent History gathered: rows[%d], cols[%d]" % (len(userSentHistory), uniquePackageCount))
         return (userSentHistory, uniquePackageList)
+
+
+
+    # Returns transformed dataset and labels ready for neural network consumption
+    # Width of the return matrix is twice that of the input raw dataset
+    def getTrainingMatrixFromRawDataset(self, rawFullDataset, uniquePackageCount):
+        rawFullDatasetCount = len(rawFullDataset)
+
+        fullDataset = []
+        fullLabels = []
+        expectedLabel = np.array([1.0], dtype=np.float)
+        notExpectedLabel = np.array([0.0], dtype=np.float)
+
+        userIndex = 0
+        for currUserHistory in rawFullDataset:
+
+            for i, cardSentCount in np.ndenumerate(currUserHistory):
+
+                currUserCard = np.zeros(uniquePackageCount, dtype=np.uint8)
+                notCurrUserCard = np.zeros(uniquePackageCount, dtype=np.uint8)
+                restOfUserHistory = np.array(currUserHistory, dtype=np.uint8)
+
+                if cardSentCount != 0:
+                    # Generating positive correlation data: ANN is expected to output favorably to
+                    # these input data because it's what happened. See powerpoint for details.
+                    currUserCard[i] = 1
+                    restOfUserHistory[i] = cardSentCount - 1
+
+                    # For each positive correlation data, we generate one negative correlation
+                    # data: ANN is expected to output 0 to these input data because the current
+                    # card was not sent by the user in reality.
+                    randomIndex = randint(0, uniquePackageCount - 1)
+                    while randomIndex == i:
+                        randomIndex = randint(0, uniquePackageCount - 1)
+                    notCurrUserCard[randomIndex] = 1
+
+                    # Add for positive correlation
+                    combinedTrainItem = np.append(currUserCard, currUserHistory)
+                    fullDataset.append(combinedTrainItem)
+                    fullLabels.append(expectedLabel)
+
+                    # Add for negative correlation
+                    combinedNegativeTrainItem = np.append(notCurrUserCard, currUserHistory)
+                    fullDataset.append(combinedNegativeTrainItem)
+                    fullLabels.append(notExpectedLabel)
+
+            userIndex += 1
+            if userIndex % 50 == 0:
+                print(
+                "Transforming user history... [%.03fk/%.03fk]" % (userIndex / 1000.0, rawFullDatasetCount / 1000.0))
+    
+        return (fullDataset, fullLabels)
