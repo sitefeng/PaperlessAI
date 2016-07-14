@@ -125,7 +125,7 @@ class DataParser:
 
     # Returns transformed dataset and labels ready for neural network consumption
     # Width of the return matrix is twice that of the input raw dataset
-    def getTrainingMatrixFromRawDataset(self, rawFullDataset, uniquePackageCount):
+    def getTrainingMatrixFromRawDataset(self, rawFullDataset, uniquePackageCount, matrixMagnificationFactor = 10):
         rawFullDatasetCount = len(rawFullDataset)
 
         fullDataset = []
@@ -145,8 +145,8 @@ class DataParser:
                 if cardSentCount != 0:
                     # Generating positive correlation data: ANN is expected to output favorably to
                     # these input data because it's what happened. See powerpoint for details.
-                    currUserCard[i] = 1
-                    restOfUserHistory[i] = cardSentCount - 1
+                    currUserCard[i] = 1 * matrixMagnificationFactor
+                    restOfUserHistory[i] = (cardSentCount - 1) * matrixMagnificationFactor
 
                     # For each positive correlation data, we generate one negative correlation
                     # data: ANN is expected to output 0 to these input data because the current
@@ -170,5 +170,5 @@ class DataParser:
             if userIndex % 50 == 0:
                 print(
                 "Transforming user history... [%.03fk/%.03fk]" % (userIndex / 1000.0, rawFullDatasetCount / 1000.0))
-    
+
         return (fullDataset, fullLabels)

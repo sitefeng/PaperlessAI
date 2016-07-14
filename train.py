@@ -43,7 +43,7 @@ def squaredErrorCost(output, target):
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
 parser = DataParser()
-rawFullDatasetInOrder, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=1000)
+rawFullDatasetInOrder, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=10000)
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
@@ -54,7 +54,7 @@ rawFullDataset = arrayFormatter.shuffle(rawFullDatasetInOrder)
 print("Transforming parsed data into training format...")
 
 uniquePackageCount = len(packageIds)
-fullDataset, fullLabels = parser.getTrainingMatrixFromRawDataset(rawFullDataset, uniquePackageCount)
+fullDataset, fullLabels = parser.getTrainingMatrixFromRawDataset(rawFullDataset, uniquePackageCount, 10)
 
 print("Finished transforming data: fullDataset[%d], fullLabels[%d]" % (len(fullDataset), len(fullLabels)))
 
@@ -63,7 +63,7 @@ print("Finished transforming data: fullDataset[%d], fullLabels[%d]" % (len(fullD
 print("Further separating data into training and validation datasets...")
 
 fullDatasetSize = len(fullDataset)
-validationSize = int(fullDatasetSize * 0.05)
+validationSize = int(fullDatasetSize * 0.08)
 
 trainDataset, validDataset = parser.splitDatasetIntroTrainingAndValidation(fullDataset, validationSize)
 trainLabels, validLabels = parser.splitDatasetIntroTrainingAndValidation(fullLabels, validationSize)
@@ -85,13 +85,13 @@ numOutput = 1
 
 batchSize = 25
 stdDeviation = 0.4
-learningRate = 0.5
+learningRate = 0.7
 
 
 # Temporarily reducing hyperperameter sizes for debugging
 numNodesL1 = 300
 numNodesL2 = 100
-batchSize = 1
+batchSize = 2
 
 
 # Start Training
@@ -107,14 +107,14 @@ b1 = tf.Variable(tf.constant(0.1, shape=[batchSize, numNodesL1, 1]), name="bias1
 # Wx => [], b => []
 z1 = tf.batch_matmul(W01, x) + b1
 
-hidden1 = tf.nn.tanh(z1, name="output1")
+hidden1 = tf.nn.relu(z1, name="output1")
 
 # Second hidden layer
 W12 = tf.Variable(tf.random_normal([batchSize, numNodesL2, numNodesL1], stddev=stdDeviation), name="weight12")
 b2 = tf.Variable(tf.constant(0.1, shape=[batchSize, numNodesL2, 1]), name="bias2")
 z2 = tf.batch_matmul(W12, hidden1) + b2
 
-hidden2 = tf.nn.tanh(z2, name="output2")
+hidden2 = tf.nn.relu(z2, name="output2")
 
 # Output layer
 W23 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL2], stddev=stdDeviation), name="weight23")
