@@ -17,10 +17,10 @@ and contains all the sent cards from all users from
  2015/01/01 to 2016-07-13
 '''
 
-
 import tensorflow as tf
 import numpy as np
 from random import randint
+from DataParser import DataParser
 
 
 # Convenience Functions for main code
@@ -33,20 +33,46 @@ def getBatch(batchNum, dataset, label, batchSize):
     return (dataset[batchStart: batchEnd], label[batchStart: batchEnd])
 
 
+# Importing and parsing data
+parser = DataParser()
+fullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=200000)
+
+fullDatasetSize = len(fullDataset)
+validationSize = int(fullDatasetSize * 0.05)
+
+unsepTrainDataset, unsepValidDataset = parser.splitDatasetIntroTrainingAndValidation(fullDataset, validationSize)
+
+
+uniquePackageCount = len(packageIds)
+# Separating full datasets into processed tensors required by TensorFlow
+trainDataset = []
+validDataset = []
+for currUserHistory in unsepTrainDataset:
+    procIndex = -1
+    currUserCard = np.empty(uniquePackageCount, dtype=np.uint8)
+    currUserHistory = np.empty(uniquePackageCount, dtype=np.uint8)
+    for i, cardIndex in np.ndenumerate(currUserHistory):
+        if cardIndex != 0:
+            procIndex = cardIndex
+
+    combinedTrainItem = np.append(currUserCard, currUserHistory)
+    trainDataset.append(combinedTrainItem)
+
+
+
+# Main training code
 # Constants
-numTrain = len(train_dataset)
-numValidation = len(valid_dataset)
+numTrain = len(trainDataset)
+numValidation = len(validDataset)
 
 numInputW = 28
 numInput = numInputW * numInputW
-numNodesL1 = 1176
+numNodesL1 = 2000
 numNodesL2 = 500
-numOutput = 10
+numOutput = 1
 
 batchSize = 50
 learningRate = 0.5
-
-
 
 ## Start Training
 inputImgs = tf.placeholder(tf.float32, shape=[batchSize, numInput])
@@ -68,7 +94,7 @@ W12 = tf.Variable(tf.random_normal([batchSize, numNodesL2, numNodesL1], stddev=0
 b2 = tf.Variable(tf.constant(0.1, shape=[batchSize, numNodesL2, 1]), name="bias2")
 z2 = tf.batch_matmul(W12, hidden1) + b2
 
-hidden2 = tf.nn.tanh(z2, name = "output2")
+hidden2 = tf.nn.tanh(z2, name="output2")
 
 # Output layer
 W23 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL2], stddev=0.4), name="weight23")
@@ -81,7 +107,7 @@ y3 = tf.nn.softmax(z3, name="output3")
 y_ = tf.squeeze(inputLabels)
 
 # crossEntropy = -tf.reduce_sum(y_ * tf.log(y3))
-crossEntropy = tf.nn.softmax_cross_entropy_with_logits(z3, y_) # cross entropy error for training
+crossEntropy = tf.nn.softmax_cross_entropy_with_logits(z3, y_)  # cross entropy error for training
 avgError = tf.reduce_mean(crossEntropy)
 
 ##########
@@ -90,7 +116,6 @@ tf.scalar_summary(avgError.op.name, avgError)
 global_step = tf.Variable(0, name='global_step')
 optimizer = tf.train.GradientDescentOptimizer(learningRate)
 trainOp = optimizer.minimize(avgError, global_step=global_step)
-
 
 # Initialize Session and Variables
 sess = tf.Session()
@@ -102,8 +127,7 @@ stepsToTrain = 1000
 
 batchNum = 0
 for step in xrange(stepsToTrain):
-
-    (batch_x, batch_t) = getBatch(batchNum, train_dataset, train_labels, batchSize)
+    (batch_x, batch_t) = getBatch(batchNum, trainDataset, train_labels, batchSize)
 
     _, currError = sess.run([trainOp, avgError], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
     print("TrainStep[%d/%d], crossEntropy[%f]" % (step, stepsToTrain, currError))
@@ -113,32 +137,27 @@ for step in xrange(stepsToTrain):
 # Post training validation
 # Classification Accuracy
 
-outputToTargetEquality = tf.equal(tf.argmax(y3, 1), tf.argmax(y_, 1))
-classificationAccuracy = tf.reduce_mean(tf.cast(outputToTargetEquality, tf.float32))
-
-print("Validating Neural Network Accuracy...")
-
-stepsToValidate = numValidation//batchSize
-accuracySum = 0
-batchNum = 0
-for step in xrange(stepsToValidate):
-    (valid_batch_x, valid_batch_t) = getBatch(batchNum, valid_dataset, valid_labels, batchSize)
-
-    currAccuracy = sess.run(classificationAccuracy, feed_dict={inputImgs: valid_batch_x, inputLabels: valid_batch_t})
-    accuracySum += currAccuracy
-    batchNum += 1
-
-percentAccuracy = accuracySum / stepsToValidate * 100
-print("Validation Accuracy: [%f%%]" % percentAccuracy)
-
-
+# outputToTargetEquality = tf.equal(tf.argmax(y3, 1), tf.argmax(y_, 1))
+# classificationAccuracy = tf.reduce_mean(tf.cast(outputToTargetEquality, tf.float32))
+#
+# print("Validating Neural Network Accuracy...")
+#
+# stepsToValidate = numValidation // batchSize
+# accuracySum = 0
+# batchNum = 0
+# for step in xrange(stepsToValidate):
+#     (valid_batch_x, valid_batch_t) = getBatch(batchNum, validDataset, valid_labels, batchSize)
+#
+#     currAccuracy = sess.run(classificationAccuracy, feed_dict={inputImgs: valid_batch_x, inputLabels: valid_batch_t})
+#     accuracySum += currAccuracy
+#     batchNum += 1
+#
+# percentAccuracy = accuracySum / stepsToValidate * 100
+# print("Validation Accuracy: [%f%%]" % percentAccuracy)
 
 
 
 
 
 sess.close()
-
-
-
 
