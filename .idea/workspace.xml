@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8464cf1c-2dcd-4b9c-a20c-529c9b8da546" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DataParser.py" afterPath="$PROJECT_DIR$/DataParser.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TryImport.py" afterPath="$PROJECT_DIR$/TryImport.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train.py" afterPath="$PROJECT_DIR$/train.py" />
     </list>
     <ignored path="PaperlessAI.iws" />
@@ -40,8 +38,8 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="239">
-              <caret line="47" column="48" selection-start-line="47" selection-start-column="48" selection-end-line="47" selection-end-column="48" />
+            <state relative-caret-position="1754">
+              <caret line="159" column="78" selection-start-line="159" selection-start-column="78" selection-end-line="159" selection-end-column="78" />
               <folding>
                 <element signature="e#570#593#0" expanded="true" />
               </folding>
@@ -421,8 +419,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="47" column="48" selection-start-line="47" selection-start-column="48" selection-end-line="47" selection-end-column="48" />
+        <state relative-caret-position="1754">
+          <caret line="159" column="78" selection-start-line="159" selection-start-column="78" selection-end-line="159" selection-end-column="78" />
           <folding>
             <element signature="e#570#593#0" expanded="true" />
           </folding>

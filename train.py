@@ -59,6 +59,8 @@ for currUserHistory in rawFullDataset:
         combinedTrainItem = np.append(currUserCard, currUserHistory)
         fullDataset.append(combinedTrainItem)
 
+        expectedLabel = np.array([1.0])
+        fullLabels.append(expectedLabel)
 
 
 # Further separate into training and validation datasets
@@ -136,7 +138,7 @@ stepsToTrain = 1000
 
 batchNum = 0
 for step in xrange(stepsToTrain):
-    (batch_x, batch_t) = getBatch(batchNum, trainDataset, train_labels, batchSize)
+    (batch_x, batch_t) = getBatch(batchNum, trainDataset, trainLabels, batchSize)
 
     _, currError = sess.run([trainOp, avgError], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
     print("TrainStep[%d/%d], crossEntropy[%f]" % (step, stepsToTrain, currError))
@@ -155,7 +157,7 @@ for step in xrange(stepsToTrain):
 # accuracySum = 0
 # batchNum = 0
 # for step in xrange(stepsToValidate):
-#     (valid_batch_x, valid_batch_t) = getBatch(batchNum, validDataset, valid_labels, batchSize)
+#     (valid_batch_x, valid_batch_t) = getBatch(batchNum, validDataset, validLabels, batchSize)
 #
 #     currAccuracy = sess.run(classificationAccuracy, feed_dict={inputImgs: valid_batch_x, inputLabels: valid_batch_t})
 #     accuracySum += currAccuracy
