@@ -43,7 +43,7 @@ def squaredErrorCost(output, target):
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
 parser = DataParser()
-rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=2500)
+rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=10000)
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
@@ -92,9 +92,9 @@ learningRate = 0.7
 
 
 # Temporarily reducing hyperperameter sizes for debugging
-numNodesL1 = 300
+numNodesL1 = 500
 numNodesL2 = 100
-batchSize = 2
+batchSize = 10
 
 
 # Start Training
@@ -172,8 +172,8 @@ for step in xrange(stepsToValidate):
     (valid_batch_x, valid_batch_t) = getBatch(batchNum, validDataset, validLabels, batchSize)
 
     currAccuracy, diff, neg = sess.run([classificationAccuracy, outputToTargetDiff, outputToTargetNeg], feed_dict={inputImgs: valid_batch_x, inputLabels: valid_batch_t})
-    print("Validation CurrentAccuracy:")
-    print(currAccuracy)
+    # print("Validation CurrentAccuracy: %.02f" % currAccuracy)
+
     accuracySum += currAccuracy
     batchNum += 1
 
