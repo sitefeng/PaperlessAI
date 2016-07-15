@@ -43,18 +43,21 @@ def squaredErrorCost(output, target):
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
 parser = DataParser()
-rawFullDatasetInOrder, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=2000)
+rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=2500)
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
 arrayFormatter = ArrayFormatter()
-rawFullDataset = arrayFormatter.shuffle(rawFullDatasetInOrder)
+rawFullDataset = arrayFormatter.shuffle(rawFullDataset)
 
 # Separating full datasets into processed tensors required by TensorFlow
 print("Transforming parsed data into training format...")
 
 uniquePackageCount = len(packageIds)
 fullDataset, fullLabels = parser.getTrainingMatrixFromRawDataset(rawFullDataset, uniquePackageCount, 10)
+# Shuffle again
+fullDataset = arrayFormatter.shuffle(fullDataset)
+fullLabels = arrayFormatter.shuffle(fullLabels)
 
 print("Finished transforming data: fullDataset[%d], fullLabels[%d]" % (len(fullDataset), len(fullLabels)))
 
