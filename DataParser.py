@@ -106,7 +106,7 @@ class DataParser:
             userSentCardCount += 1
 
             i += 1
-            if i % 1000 == 0:
+            if i % 3000 == 0:
                 print(
                     "Processing data... [%.02fk out of max of %.02fk](%.0f%%)" % (
                         i / 1000.0, maxReadRows / 1000.0, 100 * i / maxReadRows))
