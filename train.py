@@ -42,8 +42,13 @@ def squaredErrorCost(output, target):
 
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
+rowsToRead = 200000
+print("Reading rows: %d" % rowsToRead)
+
 parser = DataParser()
-rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=50000)
+rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=rowsToRead)
+
+
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
@@ -82,19 +87,14 @@ numTrain = len(trainDataset)
 numValidation = len(validDataset)
 
 numInput = uniquePackageCount * 2
-numNodesL1 = 800
-numNodesL2 = 100
+numNodesL1 = 1000
+numNodesL2 = 150
+numNodesL3 = 10
 numOutput = 1
 
 batchSize = 25
-stdDeviation = 0.4
-learningRate = 0.7
-
-
-# Temporarily reducing hyperperameter sizes for debugging
-numNodesL1 = 600
-numNodesL2 = 100
-batchSize = 20
+stdDeviation = 0.3
+learningRate = 0.15
 
 
 # Start Training
@@ -119,17 +119,22 @@ z2 = tf.batch_matmul(W12, hidden1) + b2
 
 hidden2 = tf.nn.sigmoid(z2, name="output2")
 
-# Output layer
-W23 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL2], stddev=stdDeviation), name="weight23")
+# Hidden Layer 2
+W23 = tf.Variable(tf.random_normal([batchSize, numNodesL3, numNodesL2], stddev=stdDeviation), name="weight23")
 # z3.get_shape() => [batchSize, outputSize, 1]
-temp_z3 = tf.batch_matmul(W23, hidden2)
+z3 = tf.batch_matmul(W23, hidden2)
+hidden3 = tf.nn.sigmoid(z3, name="output3")
 
-z3 = tf.reshape(temp_z3, [batchSize, numOutput])
-y3 = tf.nn.sigmoid(z3, name="output3")
+# Output layer (Layer 3)
+W34 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL3], stddev=stdDeviation), name="weight34")
+temp_z4 = tf.batch_matmul(W34, hidden3)
+
+z4 = tf.reshape(temp_z4, [batchSize, numOutput])
+y4 = tf.nn.sigmoid(z4, name="output4")
 
 y_ = tf.reshape(inputLabels, [batchSize, numOutput])
 
-outputErrors = squaredErrorCost(y3, y_)
+outputErrors = squaredErrorCost(y4, y_)
 avgError = tf.reduce_mean(outputErrors)
 
 # Minimize error though backpropagation
@@ -150,15 +155,18 @@ batchNum = 0
 for step in xrange(stepsToTrain):
     (batch_x, batch_t) = getBatch(batchNum, trainDataset, trainLabels, batchSize)
 
-    _, currError, logit, output = sess.run([trainOp, avgError, z3, y3], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
+    _, currError, output, target = sess.run([trainOp, avgError, y4, y_], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
     print("TrainStep[%d/%d], Error[%f]" % (step, stepsToTrain, currError))
+    # print("output")
+    # print(output)
+    # print("target")
+    # print(target)
 
     batchNum += 1
 
 
-
 # Post training validation, Classification Accuracy
-outputToTargetDiff = tf.abs(tf.round(y3) - tf.round(y_))
+outputToTargetDiff = tf.abs(tf.round(y4) - tf.round(y_))
 outputToTargetNeg = tf.sub(outputToTargetDiff, 1)
 outputToTargetEquality = tf.neg(outputToTargetNeg)
 classificationAccuracy = tf.reduce_mean(tf.cast(outputToTargetEquality, tf.float32))
@@ -178,8 +186,15 @@ for step in xrange(stepsToValidate):
     batchNum += 1
 
 percentAccuracy = 100 * accuracySum / stepsToValidate
+print("Steps to Validate: %d" % stepsToValidate)
 print("Validation Accuracy: [%f%%]" % percentAccuracy)
 
+
+
+# Saving neural network
+# saver = tf.train.Saver()
+# saver.save(sess, "graph1")
+# saver.export_meta_graph("/graphs/graph1.meta")
 
 sess.close()
 

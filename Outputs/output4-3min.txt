@@ -1,0 +1,68 @@
+/usr/local/Cellar/python/2.7.12/Frameworks/Python.framework/Versions/2.7/bin/python2.7 /Users/sitefeng/Documents/PaperlessAI/train.py
+Reading input CSV into raw dataset...
+Getting Unique PackageIds...
+Unique PackageId Count: 21456
+Parsing User Sent History...
+Processing data... [3.00k out of max of 3.00k](100%)
+User Sent History gathered: rows[264], cols[21456]
+Shuffling raw input dataset...
+Transforming parsed data into training format...
+Transforming user history... [0.050k/0.264k]
+Transforming user history... [0.100k/0.264k]
+Transforming user history... [0.150k/0.264k]
+Transforming user history... [0.200k/0.264k]
+Transforming user history... [0.250k/0.264k]
+Finished transforming data: fullDataset[996], fullLabels[996]
+Further separating data into training and validation datasets...
+Dataset separated into training and validation portions.
+trainDataset[917], trainLabels[917] | validDataset[79], validLabels[79]
+Setting up Neural Network...
+Training Neural Network...
+TrainStep[0/45], Error[0.266790]
+TrainStep[1/45], Error[0.278262]
+TrainStep[2/45], Error[0.215584]
+TrainStep[3/45], Error[0.258551]
+TrainStep[4/45], Error[0.310691]
+TrainStep[5/45], Error[0.237700]
+TrainStep[6/45], Error[0.306319]
+TrainStep[7/45], Error[0.279183]
+TrainStep[8/45], Error[0.313007]
+TrainStep[9/45], Error[0.268311]
+TrainStep[10/45], Error[0.285686]
+TrainStep[11/45], Error[0.328422]
+TrainStep[12/45], Error[0.236161]
+TrainStep[13/45], Error[0.306441]
+TrainStep[14/45], Error[0.267083]
+TrainStep[15/45], Error[0.262515]
+TrainStep[16/45], Error[0.275981]
+TrainStep[17/45], Error[0.270847]
+TrainStep[18/45], Error[0.239383]
+TrainStep[19/45], Error[0.302499]
+TrainStep[20/45], Error[0.249364]
+TrainStep[21/45], Error[0.303838]
+TrainStep[22/45], Error[0.258372]
+TrainStep[23/45], Error[0.277338]
+TrainStep[24/45], Error[0.266433]
+TrainStep[25/45], Error[0.270978]
+TrainStep[26/45], Error[0.313018]
+TrainStep[27/45], Error[0.229720]
+TrainStep[28/45], Error[0.347291]
+TrainStep[29/45], Error[0.302236]
+TrainStep[30/45], Error[0.282970]
+TrainStep[31/45], Error[0.290137]
+TrainStep[32/45], Error[0.323003]
+TrainStep[33/45], Error[0.274517]
+TrainStep[34/45], Error[0.243318]
+TrainStep[35/45], Error[0.308415]
+TrainStep[36/45], Error[0.312592]
+TrainStep[37/45], Error[0.279809]
+TrainStep[38/45], Error[0.243959]
+TrainStep[39/45], Error[0.317184]
+TrainStep[40/45], Error[0.264017]
+TrainStep[41/45], Error[0.266070]
+TrainStep[42/45], Error[0.336360]
+TrainStep[43/45], Error[0.231513]
+TrainStep[44/45], Error[0.215489]
+Validating Neural Network Accuracy...
+Steps to Validate: 3
+Validation Accuracy: [48.333334%]

@@ -1,0 +1,71 @@
+/usr/local/Cellar/python/2.7.12/Frameworks/Python.framework/Versions/2.7/bin/python2.7 /Users/sitefeng/Documents/PaperlessAI/train.py
+Reading input CSV into raw dataset...
+Getting Unique PackageIds...
+Unique PackageId Count: 21456
+Parsing User Sent History...
+User Sent History gathered: rows[86], cols[21456]
+Shuffling raw input dataset...
+Transforming parsed data into training format...
+Transforming user history... [0.050k/0.086k]
+Finished transforming data: fullDataset[316], fullLabels[316]
+Further separating data into training and validation datasets...
+Dataset separated into training and validation portions.
+trainDataset[291], trainLabels[291] | validDataset[25], validLabels[25]
+Setting up Neural Network...
+Training Neural Network...
+TrainStep[0/14], Error[0.278745]
+TrainStep[1/14], Error[0.262898]
+TrainStep[2/14], Error[0.289030]
+TrainStep[3/14], Error[0.260904]
+TrainStep[4/14], Error[0.250461]
+TrainStep[5/14], Error[0.291563]
+TrainStep[6/14], Error[0.207491]
+TrainStep[7/14], Error[0.250188]
+TrainStep[8/14], Error[0.324241]
+TrainStep[9/14], Error[0.314236]
+TrainStep[10/14], Error[0.258276]
+TrainStep[11/14], Error[0.263506]
+TrainStep[12/14], Error[0.289456]
+TrainStep[13/14], Error[0.326294]
+Validating Neural Network Accuracy...
+Steps to Validate: 1
+Validation Accuracy: [60.000002%]
+Traceback (most recent call last):
+  File "/Users/sitefeng/Documents/PaperlessAI/train.py", line 193, in <module>
+    saver.save(sess, "graph1")
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 1051, in save
+    {self.saver_def.filename_tensor_name: checkpoint_file})
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 372, in run
+    run_metadata_ptr)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 636, in _run
+    feed_dict_string, options, run_metadata)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 708, in _do_run
+    target_list, options, run_metadata)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/client/session.py", line 728, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors.InvalidArgumentError: Tensor slice is too large to serialize (conservative estimate: 3089665042 bytes)
+	 [[Node: save/save = SaveSlices[T=[DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_INT32, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT], _device="/job:localhost/replica:0/task:0/cpu:0"](_recv_save/Const_0, save/save/tensor_names, save/save/shapes_and_slices, bias1, bias1/Adagrad, bias2, bias2/Adagrad, global_step, weight01, weight01/Adagrad, weight12, weight12/Adagrad, weight23, weight23/Adagrad, weight34, weight34/Adagrad)]]
+Caused by op u'save/save', defined at:
+  File "/Users/sitefeng/Documents/PaperlessAI/train.py", line 192, in <module>
+    saver = tf.train.Saver()
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 845, in __init__
+    restore_sequentially=restore_sequentially)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 513, in build
+    save_tensor = self._AddSaveOps(filename_tensor, vars_to_save)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 212, in _AddSaveOps
+    save = self.save_op(filename_tensor, vars_to_save)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/training/saver.py", line 164, in save_op
+    tensor_slices=[vs.slice_spec for vs in vars_to_save])
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/ops/io_ops.py", line 178, in _save
+    tensors, name=name)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/ops/gen_io_ops.py", line 437, in _save_slices
+    data=data, name=name)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/ops/op_def_library.py", line 711, in apply_op
+    op_def=op_def)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/framework/ops.py", line 2260, in create_op
+    original_op=self._default_original_op, op_def=op_def)
+  File "/usr/local/lib/python2.7/site-packages/tensorflow/python/framework/ops.py", line 1230, in __init__
+    self._traceback = _extract_stack()
+
+
+Process finished with exit code 1
