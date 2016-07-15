@@ -43,7 +43,7 @@ def squaredErrorCost(output, target):
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
 parser = DataParser()
-rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=30000)
+rawFullDataset, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=50000)
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
@@ -82,7 +82,7 @@ numTrain = len(trainDataset)
 numValidation = len(validDataset)
 
 numInput = uniquePackageCount * 2
-numNodesL1 = 500
+numNodesL1 = 800
 numNodesL2 = 100
 numOutput = 1
 
@@ -134,7 +134,7 @@ avgError = tf.reduce_mean(outputErrors)
 
 # Minimize error though backpropagation
 global_step = tf.Variable(0, name='global_step')
-optimizer = tf.train.MomentumOptimizer(learningRate)
+optimizer = tf.train.AdagradOptimizer(learningRate)
 trainOp = optimizer.minimize(avgError, global_step=global_step)
 
 # Initialize Session and Variables
