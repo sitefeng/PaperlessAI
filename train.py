@@ -43,7 +43,7 @@ def squaredErrorCost(output, target):
 # Importing and parsing data
 print("Reading input CSV into raw dataset...")
 parser = DataParser()
-rawFullDatasetInOrder, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=10000)
+rawFullDatasetInOrder, packageIds = parser.readCSV(fileName="accounts_packages.csv", maxReadRows=2000)
 
 # Shuffling the raw dataset
 print("Shuffling raw input dataset...")
@@ -102,19 +102,19 @@ inputLabels = tf.placeholder(tf.float32, shape=[batchSize, numOutput])
 x = tf.expand_dims(inputImgs, 2)
 
 W01 = tf.Variable(tf.random_normal([batchSize, numNodesL1, numInput], stddev=stdDeviation, dtype=tf.float32), name="weight01")
-b1 = tf.Variable(tf.constant(0.1, shape=[batchSize, numNodesL1, 1]), name="bias1")
+b1 = tf.Variable(tf.constant(0.01, shape=[batchSize, numNodesL1, 1]), name="bias1")
 
 # Wx => [], b => []
 z1 = tf.batch_matmul(W01, x) + b1
 
-hidden1 = tf.nn.relu(z1, name="output1")
+hidden1 = tf.nn.sigmoid(z1, name="output1")
 
 # Second hidden layer
 W12 = tf.Variable(tf.random_normal([batchSize, numNodesL2, numNodesL1], stddev=stdDeviation), name="weight12")
-b2 = tf.Variable(tf.constant(0.1, shape=[batchSize, numNodesL2, 1]), name="bias2")
+b2 = tf.Variable(tf.constant(0.01, shape=[batchSize, numNodesL2, 1]), name="bias2")
 z2 = tf.batch_matmul(W12, hidden1) + b2
 
-hidden2 = tf.nn.relu(z2, name="output2")
+hidden2 = tf.nn.sigmoid(z2, name="output2")
 
 # Output layer
 W23 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL2], stddev=stdDeviation), name="weight23")
@@ -122,7 +122,7 @@ W23 = tf.Variable(tf.random_normal([batchSize, numOutput, numNodesL2], stddev=st
 temp_z3 = tf.batch_matmul(W23, hidden2)
 
 z3 = tf.reshape(temp_z3, [batchSize, numOutput])
-y3 = tf.nn.softmax(z3, name="output3")
+y3 = tf.nn.sigmoid(z3, name="output3")
 
 y_ = tf.reshape(inputLabels, [batchSize, numOutput])
 
@@ -147,7 +147,7 @@ batchNum = 0
 for step in xrange(stepsToTrain):
     (batch_x, batch_t) = getBatch(batchNum, trainDataset, trainLabels, batchSize)
 
-    _, currError = sess.run([trainOp, avgError], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
+    _, currError, logit, output = sess.run([trainOp, avgError, z3, y3], feed_dict={inputImgs: batch_x, inputLabels: batch_t})
     print("TrainStep[%d/%d], Error[%f]" % (step, stepsToTrain, currError))
 
     batchNum += 1
@@ -169,10 +169,12 @@ for step in xrange(stepsToValidate):
     (valid_batch_x, valid_batch_t) = getBatch(batchNum, validDataset, validLabels, batchSize)
 
     currAccuracy, diff, neg = sess.run([classificationAccuracy, outputToTargetDiff, outputToTargetNeg], feed_dict={inputImgs: valid_batch_x, inputLabels: valid_batch_t})
+    print("Validation CurrentAccuracy:")
+    print(currAccuracy)
     accuracySum += currAccuracy
     batchNum += 1
 
-percentAccuracy = accuracySum / stepsToValidate * 100
+percentAccuracy = 100 * accuracySum / stepsToValidate
 print("Validation Accuracy: [%f%%]" % percentAccuracy)
 
 
